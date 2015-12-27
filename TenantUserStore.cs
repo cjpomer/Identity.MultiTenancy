@@ -22,6 +22,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
     public class TenantUserStore : TenantUserStore<TenantIdentityUser<string, string>>
     {
         public TenantUserStore(DbContext context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
+        public TenantUserStore(DbContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
     }
 
 
@@ -33,6 +34,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         where TUser : TenantIdentityUser<string, string>, new()
     {
         public TenantUserStore(DbContext context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
+        public TenantUserStore(DbContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
     }
 
 
@@ -48,6 +50,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         where TContext : DbContext
     {
         public TenantUserStore(TContext context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
+        public TenantUserStore(TContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
     }
 
 
@@ -75,7 +78,22 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         where TKey : IEquatable<TKey>
         where TTenantKey : IEquatable<TTenantKey>
     {
-        public virtual TTenantKey TenantId { get; private set; }
+        public virtual TTenantKey TenantId { get; set; }
+
+        /// <summary> 
+        /// Creates a new instance of <see cref="TenantUserStore"/>. 
+        /// </summary> 
+        /// <param name="context">The context used to access the store.</param> 
+        /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param> 
+        public TenantUserStore(TContext context, IdentityErrorDescriber describer = null)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+            Context = context;
+            ErrorDescriber = describer ?? new IdentityErrorDescriber();
+        }
 
         /// <summary> 
         /// Creates a new instance of <see cref="TenantUserStore"/>. 

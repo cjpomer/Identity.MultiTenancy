@@ -1,10 +1,10 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "1.3.0-*",
   "description": "Microsoft.AspNet.Identity.MultiTenancy Class Library",
   "authors": [ "jordan pomeroy" ],
   "tags": [ "identity multitenant multitenancy aspnet" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+  "projectUrl": "https://github.com/cjpomer/Identity.MultiTenancy",
+  "licenseUrl": "https://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm",
 
   "dependencies": {
     "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-rc1-final"
@@ -18,7 +18,7 @@
         "System.Collections": "4.0.11-beta-23516",
         "System.Linq": "4.0.1-beta-23516",
         "System.Runtime": "4.0.21-beta-23516",
-        "System.Threading": "4.0.11-beta-23516",
+        "System.Threading": "4.0.11-beta-23516"
       }
     }
   }

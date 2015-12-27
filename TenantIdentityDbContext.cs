@@ -17,6 +17,8 @@ namespace Microsoft.AspNet.Identity.MultiTenancy
         where TUserKey : IEquatable<TUserKey>
         where TRole : IdentityRole<TUserKey>
     {
+        public DbSet<Tenant<TTenantKey>> Tenants { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
