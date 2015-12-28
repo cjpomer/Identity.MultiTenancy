@@ -253,6 +253,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             user.TenantId = TenantId;
             Context.Add(user);
             await SaveChanges(cancellationToken);
@@ -273,6 +277,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -309,6 +317,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -338,6 +350,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </returns> 
         public virtual Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             var id = ConvertIdFromString(userId);
@@ -385,6 +401,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </returns> 
         public virtual Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             return Users.FirstOrDefaultAsync(u => u.NormalizedUserName == normalizedUserName && u.TenantId.Equals(TenantId), cancellationToken);
@@ -486,6 +506,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -519,6 +543,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -554,6 +582,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -583,6 +615,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -641,6 +677,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -664,6 +704,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -695,6 +739,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -733,6 +781,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -768,6 +820,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -805,6 +861,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -834,6 +894,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -888,6 +952,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -911,6 +979,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -937,6 +1009,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -960,6 +1036,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -986,6 +1066,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1010,6 +1094,11 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
+
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1030,6 +1119,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </returns> 
         public virtual Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             return Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail && u.TenantId.Equals(TenantId), cancellationToken);
@@ -1053,6 +1146,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -1078,6 +1175,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1101,6 +1202,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -1127,6 +1232,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1150,6 +1259,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -1176,6 +1289,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1199,6 +1316,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -1225,6 +1346,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1248,6 +1373,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -1275,6 +1404,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1298,6 +1431,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -1324,6 +1461,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1347,6 +1488,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -1372,6 +1517,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
             }
             if (!user.TenantId.Equals(TenantId))
             {
@@ -1401,6 +1550,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (!user.TenantId.Equals(TenantId))
             {
                 throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
@@ -1422,6 +1575,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             if (claim == null)
             {
                 throw new ArgumentNullException(nameof(claim));
@@ -1450,6 +1607,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </returns> 
         public async virtual Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (TenantId == null)
+            {
+                throw new ArgumentNullException(nameof(TenantId));
+            }
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (String.IsNullOrEmpty(roleName))

@@ -21,7 +21,6 @@ namespace Microsoft.AspNet.Identity.MultiTenancy
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder);
             builder.Entity<Tenant<TTenantKey>>(b =>
             {
                 b.HasKey(t => t.Id);
@@ -30,6 +29,7 @@ namespace Microsoft.AspNet.Identity.MultiTenancy
 
                 b.Property(t => t.Name).HasMaxLength(256);
             });
+            base.OnModelCreating(builder);
         }
     }
 }
