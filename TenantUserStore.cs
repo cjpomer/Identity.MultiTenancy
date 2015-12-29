@@ -11,18 +11,25 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity;
-
+using Microsoft.AspNet.Identity.MultiTenancy;
 
 namespace Microsoft.AspNet.Identity.EntityFramework
 {
+    public class TenantUserStore : TenantUserStore<Tenant<string>, TenantIdentityUser<Tenant<string>, string>>
+    {
+        public TenantUserStore(TenantIdentityDbContext<Tenant<string>, TenantIdentityUser<Tenant<string>, string>> context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
+        public TenantUserStore(TenantIdentityDbContext<Tenant<string>, TenantIdentityUser<Tenant<string>, string>> context, IdentityErrorDescriber describer = null) : base(context, describer) { }
+
+    }
     /// <summary> 
     /// Creates a new instance of a persistence store for users, using the default implementation 
     /// of <see cref="IdentityUser{TKey}"/> with a string as a primary key. 
     /// </summary> 
-    public class TenantUserStore : TenantUserStore<TenantIdentityUser<string, string>>
+    public class TenantUserStore<TTenant> : TenantUserStore<TTenant, TenantIdentityUser<TTenant, string>>
+        where TTenant : Tenant<string>
     {
-        public TenantUserStore(DbContext context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
-        public TenantUserStore(DbContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
+        public TenantUserStore(TenantIdentityDbContext<TTenant, TenantIdentityUser<TTenant, string>> context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
+        public TenantUserStore(TenantIdentityDbContext<TTenant, TenantIdentityUser<TTenant, string>> context, IdentityErrorDescriber describer = null) : base(context, describer) { }
     }
 
 
@@ -30,11 +37,12 @@ namespace Microsoft.AspNet.Identity.EntityFramework
     /// Creates a new instance of a persistence store for the specified user type. 
     /// </summary> 
     /// <typeparam name="TUser">The type representing a user.</typeparam> 
-    public class TenantUserStore<TUser> : TenantUserStore<TUser, IdentityRole, DbContext>
-        where TUser : TenantIdentityUser<string, string>, new()
+    public class TenantUserStore<TTenant, TUser> : TenantUserStore<TTenant, TUser, IdentityRole, TenantIdentityDbContext<TTenant, TUser>>
+        where TTenant : Tenant<string>
+        where TUser : TenantIdentityUser<TTenant, string>, new()
     {
-        public TenantUserStore(DbContext context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
-        public TenantUserStore(DbContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
+        public TenantUserStore(TenantIdentityDbContext<TTenant, TUser> context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
+        public TenantUserStore(TenantIdentityDbContext<TTenant, TUser> context, IdentityErrorDescriber describer = null) : base(context, describer) { }
     }
 
 
@@ -44,10 +52,11 @@ namespace Microsoft.AspNet.Identity.EntityFramework
     /// <typeparam name="TUser">The type representing a user.</typeparam> 
     /// <typeparam name="TRole">The type representing a role.</typeparam> 
     /// <typeparam name="TContext">The type of the data context class used to access the store.</typeparam> 
-    public class TenantUserStore<TUser, TRole, TContext> : TenantUserStore<TUser, TRole, TContext, string, string>
-        where TUser : TenantIdentityUser<string, string>, new()
+    public class TenantUserStore<TTenant, TUser, TRole, TContext> : TenantUserStore<TTenant, TUser, TRole, TContext, string, string>
+        where TTenant : Tenant<string>
+        where TUser : TenantIdentityUser<TTenant, string, string>, new()
         where TRole : IdentityRole<string>, new()
-        where TContext : DbContext
+        where TContext : TenantIdentityDbContext<TTenant, TUser, TRole, string, string>
     {
         public TenantUserStore(TContext context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
         public TenantUserStore(TContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
@@ -60,8 +69,8 @@ namespace Microsoft.AspNet.Identity.EntityFramework
     /// <typeparam name="TUser">The type representing a user.</typeparam> 
     /// <typeparam name="TRole">The type representing a role.</typeparam> 
     /// <typeparam name="TContext">The type of the data context class used to access the store.</typeparam> 
-    /// <typeparam name="TKey">The type of the primary key for a role.</typeparam> 
-    public class TenantUserStore<TUser, TRole, TContext, TTenantKey, TKey> :
+    /// <typeparam name="TUserKey">The type of the primary key for a role.</typeparam> 
+    public class TenantUserStore<TTenant, TUser, TRole, TContext, TTenantKey, TUserKey> :
         IUserLoginStore<TUser>,
         IUserRoleStore<TUser>,
         IUserClaimStore<TUser>,
@@ -72,10 +81,11 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         IUserPhoneNumberStore<TUser>,
         IQueryableUserStore<TUser>,
         IUserTwoFactorStore<TUser>
-        where TUser : TenantIdentityUser<TTenantKey, TKey>
-        where TRole : IdentityRole<TKey>
-        where TContext : DbContext
-        where TKey : IEquatable<TKey>
+        where TTenant : Tenant<TTenantKey>
+        where TUser : TenantIdentityUser<TTenant, TTenantKey, TUserKey>
+        where TRole : IdentityRole<TUserKey>
+        where TContext : TenantIdentityDbContext<TTenant, TUser, TRole, TTenantKey, TUserKey>
+        where TUserKey : IEquatable<TUserKey>
         where TTenantKey : IEquatable<TTenantKey>
     {
         public virtual TTenantKey TenantId { get; set; }
@@ -365,14 +375,14 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// Converts the provided <paramref name="id"/> to a strongly typed key object. 
         /// </summary> 
         /// <param name="id">The id to convert.</param> 
-        /// <returns>An instance of <typeparamref name="TKey"/> representing the provided <paramref name="id"/>.</returns> 
-        public virtual TKey ConvertIdFromString(string id)
+        /// <returns>An instance of <typeparamref name="TUserKey"/> representing the provided <paramref name="id"/>.</returns> 
+        public virtual TUserKey ConvertIdFromString(string id)
         {
             if (id == null)
             {
-                return default(TKey);
+                return default(TUserKey);
             }
-            return (TKey)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
+            return (TUserKey)TypeDescriptor.GetConverter(typeof(TUserKey)).ConvertFromInvariantString(id);
         }
 
 
@@ -381,9 +391,9 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </summary> 
         /// <param name="id">The id to convert.</param> 
         /// <returns>An <see cref="string"/> representation of the provided <paramref name="id"/>.</returns> 
-        public virtual string ConvertIdToString(TKey id)
+        public virtual string ConvertIdToString(TUserKey id)
         {
-            if (Object.Equals(id, default(TKey)))
+            if (Object.Equals(id, default(TUserKey)))
             {
                 return null;
             }
@@ -459,10 +469,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             return Task.FromResult(user.PasswordHash);
         }
@@ -480,10 +486,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -524,7 +526,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new InvalidOperationException(roleName);
             }
-            var ur = new IdentityUserRole<TKey> { UserId = user.Id, RoleId = roleEntity.Id };
+            var ur = new IdentityUserRole<TUserKey> { UserId = user.Id, RoleId = roleEntity.Id };
             UserRoles.Add(ur);
         }
 
@@ -581,14 +583,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             var userId = user.Id;
@@ -659,9 +653,9 @@ namespace Microsoft.AspNet.Identity.EntityFramework
 
 
         private DbSet<TRole> Roles { get { return Context.Set<TRole>(); } }
-        private DbSet<IdentityUserClaim<TKey>> UserClaims { get { return Context.Set<IdentityUserClaim<TKey>>(); } }
-        private DbSet<IdentityUserRole<TKey>> UserRoles { get { return Context.Set<IdentityUserRole<TKey>>(); } }
-        private DbSet<IdentityUserLogin<TKey>> UserLogins { get { return Context.Set<IdentityUserLogin<TKey>>(); } }
+        private DbSet<IdentityUserClaim<TUserKey>> UserClaims { get { return Context.Set<IdentityUserClaim<TUserKey>>(); } }
+        private DbSet<IdentityUserRole<TUserKey>> UserRoles { get { return Context.Set<IdentityUserRole<TUserKey>>(); } }
+        private DbSet<IdentityUserLogin<TUserKey>> UserLogins { get { return Context.Set<IdentityUserLogin<TUserKey>>(); } }
 
 
         /// <summary> 
@@ -719,7 +713,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             }
             foreach (var claim in claims)
             {
-                UserClaims.Add(new IdentityUserClaim<TKey> { UserId = user.Id, ClaimType = claim.Type, ClaimValue = claim.Value });
+                UserClaims.Add(new IdentityUserClaim<TUserKey> { UserId = user.Id, ClaimType = claim.Type, ClaimValue = claim.Value });
             }
             return Task.FromResult(false);
         }
@@ -833,7 +827,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(login));
             }
-            var l = new IdentityUserLogin<TKey>
+            var l = new IdentityUserLogin<TUserKey>
             {
                 UserId = user.Id,
                 ProviderKey = login.ProviderKey,
@@ -952,14 +946,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             return Task.FromResult(user.EmailConfirmed);
         }
@@ -979,14 +965,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             user.EmailConfirmed = confirmed;
@@ -1009,14 +987,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             user.Email = email;
             return Task.FromResult(0);
@@ -1036,14 +1006,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             return Task.FromResult(user.Email);
@@ -1066,14 +1028,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             return Task.FromResult(user.NormalizedEmail);
         }
@@ -1093,15 +1047,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             user.NormalizedEmail = normalizedEmail;
@@ -1147,14 +1092,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             return Task.FromResult(user.LockoutEnd);
         }
@@ -1175,14 +1112,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             user.LockoutEnd = lockoutEnd;
             return Task.FromResult(0);
@@ -1202,14 +1131,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             user.AccessFailedCount++;
@@ -1232,14 +1153,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             user.AccessFailedCount = 0;
             return Task.FromResult(0);
@@ -1259,14 +1172,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             return Task.FromResult(user.AccessFailedCount);
@@ -1289,14 +1194,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             return Task.FromResult(user.LockoutEnabled);
         }
@@ -1316,14 +1213,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             user.LockoutEnabled = enabled;
@@ -1346,14 +1235,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             user.PhoneNumber = phoneNumber;
             return Task.FromResult(0);
@@ -1373,14 +1254,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             return Task.FromResult(user.PhoneNumber);
@@ -1404,14 +1277,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             return Task.FromResult(user.PhoneNumberConfirmed);
         }
@@ -1431,14 +1296,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             user.PhoneNumberConfirmed = confirmed;
@@ -1461,14 +1318,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
-            }
 
             user.SecurityStamp = stamp;
             return Task.FromResult(0);
@@ -1488,14 +1337,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             return Task.FromResult(user.SecurityStamp);
@@ -1517,14 +1358,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             user.TwoFactorEnabled = enabled;
@@ -1549,14 +1382,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
-            }
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
-            if (!user.TenantId.Equals(TenantId))
-            {
-                throw new InvalidOperationException("The tenant ID of the user does not match the tenant ID of this TenantUserStore");
             }
 
             return Task.FromResult(user.TwoFactorEnabled);

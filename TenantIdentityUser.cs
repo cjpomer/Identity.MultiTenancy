@@ -6,16 +6,45 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.Identity.EntityFramework
 {
-    public class TenantIdentityUser : TenantIdentityUser<string, string>
+    public class TenantIdentityUser : TenantIdentityUser<Tenant, string, string>
     {
+        public TenantIdentityUser()
+        {
+        }
+
+        public TenantIdentityUser(string userName) : base(userName)
+        {
+        }
     }
 
-    public class TenantIdentityUser<TTenantKey, TUserKey> : IdentityUser<TUserKey>
+    public class TenantIdentityUser<TTenant, TTenantKey> : TenantIdentityUser<TTenant, TTenantKey, string>
+        where TTenant : Tenant<TTenantKey>
+        where TTenantKey : IEquatable<TTenantKey>
+    {
+        public TenantIdentityUser()
+        {
+        }
+
+        public TenantIdentityUser(string userName) : base(userName)
+        {
+        }
+    }
+
+    public class TenantIdentityUser<TTenant, TTenantKey, TUserKey> : IdentityUser<TUserKey>
+        where TTenant : Tenant<TTenantKey>
         where TTenantKey : IEquatable<TTenantKey>
         where TUserKey : IEquatable<TUserKey>
     {
         virtual public TTenantKey TenantId { get; set; }
 
-        virtual public Tenant<TTenantKey> Tenant { get; set; }
+        public TenantIdentityUser()
+        {
+        }
+
+        public TenantIdentityUser(string userName) : base(userName)
+        {
+        }
+
+        virtual public TTenant Tenant { get; set; }
     }
 }

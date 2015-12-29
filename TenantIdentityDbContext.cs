@@ -7,21 +7,33 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.Identity.MultiTenancy
 {
-    public class TenantIdentityDbContext : TenantIdentityDbContext<TenantIdentityUser, IdentityRole, string, string>
+    public class TenantIdentityDbContext : TenantIdentityDbContext<Tenant, TenantIdentityUser, IdentityRole, string, string>
     {
     }
 
-    public class TenantIdentityDbContext<TUser, TRole, TTenantKey, TUserKey> : IdentityDbContext<TUser, TRole, TUserKey>
-        where TUser : TenantIdentityUser<TTenantKey, TUserKey>
+    public class TenantIdentityDbContext<TUser> : TenantIdentityDbContext<Tenant, TUser, IdentityRole, string, string>
+        where TUser : TenantIdentityUser<Tenant, string>
+    {
+    }
+
+    public class TenantIdentityDbContext<TTenant, TUser> : TenantIdentityDbContext<TTenant, TUser, IdentityRole, string, string>
+        where TTenant : Tenant<string>
+        where TUser : TenantIdentityUser<TTenant, string>
+    {
+    }
+
+    public class TenantIdentityDbContext<TTenant, TUser, TRole, TTenantKey, TUserKey> : IdentityDbContext<TUser, TRole, TUserKey>
+        where TTenant : Tenant<TTenantKey>
+        where TUser : TenantIdentityUser<TTenant, TTenantKey, TUserKey>
         where TTenantKey : IEquatable<TTenantKey>
         where TUserKey : IEquatable<TUserKey>
         where TRole : IdentityRole<TUserKey>
     {
-        public DbSet<Tenant<TTenantKey>> Tenants { get; set; }
+        public DbSet<TTenant> Tenants { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Tenant<TTenantKey>>(b =>
+            builder.Entity<TTenant>(b =>
             {
                 b.HasKey(t => t.Id);
                 b.HasIndex(t => t.Name).HasName("NameIndex");
