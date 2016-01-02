@@ -8,7 +8,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
 {
     public class TenantIdentityUser : TenantIdentityUser<Tenant, string, string>
     {
-        public TenantIdentityUser()
+        public TenantIdentityUser() 
         {
         }
 
@@ -23,6 +23,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
     {
         public TenantIdentityUser()
         {
+            Id = Guid.NewGuid().ToString();
         }
 
         public TenantIdentityUser(string userName) : base(userName)
@@ -37,7 +38,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
     {
         virtual public TTenantKey TenantId { get; set; }
 
-        public TenantIdentityUser()
+        public TenantIdentityUser() : base()
         {
         }
 

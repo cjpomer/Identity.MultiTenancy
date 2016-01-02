@@ -360,14 +360,10 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </returns> 
         public virtual Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             var id = ConvertIdFromString(userId);
-            return Users.FirstOrDefaultAsync(u => u.Id.Equals(id) && u.TenantId.Equals(TenantId), cancellationToken);
+            return Users.FirstOrDefaultAsync(u => u.Id.Equals(id), cancellationToken);
         }
 
 
