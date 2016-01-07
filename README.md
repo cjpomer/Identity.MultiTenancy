@@ -28,7 +28,7 @@ return new UserManager<TenantUser>(
 ```
 Not that the `TenantUserStore<Tenant, TenantUser, IdentityRole, dbContext>` ctor takes the Tenant ID.  By default the Tenant ID is of type string.
 
-Because ASP.NET v6 uses DI, it is convenient to provide a factory to get instances of the `UserManager<TUser>` given a Tenant ID.  This can be done by registering such a factory in StartUp.cs:
+Because ASP.NET v6 uses DI, it is convenient to provide a factory to get instances of the `UserManager<TUser>` given a Tenant ID.  This can be done by registering such a factory in Startup.cs:
 ```c#
 public delegate UserManager<CazadorUser> UserManagerFactory(string tenantId);
 ...
