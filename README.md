@@ -30,4 +30,38 @@ Not that the `TenantUserStore<Tenant, TenantUser, IdentityRole, dbContext>` ctor
 
 Because ASP.NET v6 uses DI, it is convenient to provide a factory to get instances of the `UserManager<TUser>` given a Tenant ID.  This can be done by registering such a factory in StartUp.cs:
 ```c#
+public delegate UserManager<CazadorUser> UserManagerFactory(string tenantId);
+...
+public void ConfigureServices(IServiceCollection services)
+{
+  // Add framework services.
+  services.AddApplicationInsightsTelemetry(Configuration);
+
+  services.AddEntityFramework()
+      .AddSqlServer()
+      .AddDbContext<TenantDbContext>(options =>
+          options.UseSqlServer(Configuration["Data:DefaultConnection:ConnectionString"]));
+
+  services.AddIdentity<TenantUser, IdentityRole>()
+      .AddEntityFrameworkStores<TenantDbContext>()
+      .AddDefaultTokenProviders();
+
+  services.TryAddScoped(typeof(UserManagerFactory), isp =>
+  {
+      return (UserManagerFactory)((string tenantId) =>
+      {
+          return new UserManager<TenantUser>(
+              new TenantUserStore<Tenant, TenantUser, IdentityRole, TenantDbContext>(isp.GetService<TenantDbContext>(), tenantId),
+              isp.GetService<IOptions <IdentityOptions>>(), 
+              isp.GetService<IPasswordHasher<TenantUser>>(), 
+              isp.GetService<IEnumerable<IUserValidator<TenantUser>>>(), 
+              isp.GetService<IEnumerable<IPasswordValidator<TenantUser>>>(), 
+              isp.GetService<ILookupNormalizer>(),
+              isp.GetService<IdentityErrorDescriber>(), 
+              isp,
+              isp.GetService<ILogger<UserManager<TenantUser>>>(),
+              isp.GetService<IHttpContextAccessor>());
+      });
+  });
+  ...
 ```
