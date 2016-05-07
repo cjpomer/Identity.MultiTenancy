@@ -407,13 +407,9 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </returns> 
         public virtual Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            return Users.FirstOrDefaultAsync(u => u.NormalizedUserName == normalizedUserName && u.TenantId.Equals(TenantId), cancellationToken);
+            return Users.FirstOrDefaultAsync(u => u.NormalizedUserName == normalizedUserName, cancellationToken);
         }
 
 
@@ -1060,13 +1056,9 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </returns> 
         public virtual Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            return Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail && u.TenantId.Equals(TenantId), cancellationToken);
+            return Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail, cancellationToken);
         }
 
 
@@ -1396,10 +1388,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
             if (claim == null)
             {
                 throw new ArgumentNullException(nameof(claim));
@@ -1410,7 +1398,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
                         join user in Users on userclaims.UserId equals user.Id
                         where userclaims.ClaimValue == claim.Value
                         && userclaims.ClaimType == claim.Type
-                        && user.TenantId.Equals(TenantId)
                         select user;
 
 
@@ -1428,10 +1415,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </returns> 
         public async virtual Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (TenantId == null)
-            {
-                throw new ArgumentNullException(nameof(TenantId));
-            }
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (String.IsNullOrEmpty(roleName))
@@ -1448,7 +1431,6 @@ namespace Microsoft.AspNet.Identity.EntityFramework
                 var query = from userrole in UserRoles
                             join user in Users on userrole.UserId equals user.Id
                             where userrole.RoleId.Equals(role.Id)
-                            && user.TenantId.Equals(TenantId)
                             select user;
 
 
