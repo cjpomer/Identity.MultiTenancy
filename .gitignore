@@ -4,6 +4,6 @@
 
 /obj/Debug/netstandard1.6
 /bin/Debug/netstandard1.6
-/.vs/Microsoft.AspNet.Identity.MultiTenancy\v14
-Microsoft.AspNet.Identity.MultiTenancy.xproj.user
+AspNetCore.Identity.MultiTenancy.xproj.user
 project.lock.json
+/.vs/Microsoft.AspNetCore.Identity.MultiTenancy/v14/.suo
