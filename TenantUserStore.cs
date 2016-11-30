@@ -2,75 +2,25 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
 
 
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity;
-using Microsoft.AspNet.Identity.MultiTenancy;
 
-namespace Microsoft.AspNet.Identity.EntityFramework
+namespace Microsoft.AspNetCore.Identity.MultiTenancy.EntityFramework
 {
-    public class TenantUserStore : TenantUserStore<Tenant<string>, TenantIdentityUser<Tenant<string>, string>>
-    {
-        public TenantUserStore(TenantIdentityDbContext<Tenant<string>, TenantIdentityUser<Tenant<string>, string>> context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
-        public TenantUserStore(TenantIdentityDbContext<Tenant<string>, TenantIdentityUser<Tenant<string>, string>> context, IdentityErrorDescriber describer = null) : base(context, describer) { }
-
-    }
-    /// <summary> 
-    /// Creates a new instance of a persistence store for users, using the default implementation 
-    /// of <see cref="IdentityUser{TKey}"/> with a string as a primary key. 
-    /// </summary> 
-    public class TenantUserStore<TTenant> : TenantUserStore<TTenant, TenantIdentityUser<TTenant, string>>
-        where TTenant : Tenant<string>
-    {
-        public TenantUserStore(TenantIdentityDbContext<TTenant, TenantIdentityUser<TTenant, string>> context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
-        public TenantUserStore(TenantIdentityDbContext<TTenant, TenantIdentityUser<TTenant, string>> context, IdentityErrorDescriber describer = null) : base(context, describer) { }
-    }
-
-
-    /// <summary> 
-    /// Creates a new instance of a persistence store for the specified user type. 
-    /// </summary> 
-    /// <typeparam name="TUser">The type representing a user.</typeparam> 
-    public class TenantUserStore<TTenant, TUser> : TenantUserStore<TTenant, TUser, IdentityRole, TenantIdentityDbContext<TTenant, TUser>>
-        where TTenant : Tenant<string>
-        where TUser : TenantIdentityUser<TTenant, string>, new()
-    {
-        public TenantUserStore(TenantIdentityDbContext<TTenant, TUser> context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
-        public TenantUserStore(TenantIdentityDbContext<TTenant, TUser> context, IdentityErrorDescriber describer = null) : base(context, describer) { }
-    }
-
-
-    /// <summary> 
-    /// Creates a new instance of a persistence store for the specified user and role types. 
-    /// </summary> 
-    /// <typeparam name="TUser">The type representing a user.</typeparam> 
-    /// <typeparam name="TRole">The type representing a role.</typeparam> 
-    /// <typeparam name="TContext">The type of the data context class used to access the store.</typeparam> 
-    public class TenantUserStore<TTenant, TUser, TRole, TContext> : TenantUserStore<TTenant, TUser, TRole, TContext, string, string>
-        where TTenant : Tenant<string>
-        where TUser : TenantIdentityUser<TTenant, string, string>, new()
-        where TRole : IdentityRole<string>, new()
-        where TContext : TenantIdentityDbContext<TTenant, TUser, TRole, string, string>
-    {
-        public TenantUserStore(TContext context, string tenantId, IdentityErrorDescriber describer = null) : base(context, tenantId, describer) { }
-        public TenantUserStore(TContext context, IdentityErrorDescriber describer = null) : base(context, describer) { }
-    }
-
-
     /// <summary> 
     /// Represents a new instance of a persistence store for the specified user and role types. 
     /// </summary> 
     /// <typeparam name="TUser">The type representing a user.</typeparam> 
     /// <typeparam name="TRole">The type representing a role.</typeparam> 
-    /// <typeparam name="TContext">The type of the data context class used to access the store.</typeparam> 
-    /// <typeparam name="TUserKey">The type of the primary key for a role.</typeparam> 
-    public class TenantUserStore<TTenant, TUser, TRole, TContext, TTenantKey, TUserKey> :
+    /// <typeparam name="TKey">The type of the primary key for a role.</typeparam> 
+    public class TenantUserStore<TUser, TRole, TKey> :
         IUserLoginStore<TUser>,
         IUserRoleStore<TUser>,
         IUserClaimStore<TUser>,
@@ -81,21 +31,18 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         IUserPhoneNumberStore<TUser>,
         IQueryableUserStore<TUser>,
         IUserTwoFactorStore<TUser>
-        where TTenant : Tenant<TTenantKey>
-        where TUser : TenantIdentityUser<TTenant, TTenantKey, TUserKey>
-        where TRole : IdentityRole<TUserKey>
-        where TContext : TenantIdentityDbContext<TTenant, TUser, TRole, TTenantKey, TUserKey>
-        where TUserKey : IEquatable<TUserKey>
-        where TTenantKey : IEquatable<TTenantKey>
+        where TUser : TenantIdentityUser<TKey>
+        where TRole : IdentityRole<TKey>
+        where TKey : IEquatable<TKey>
     {
-        public virtual TTenantKey TenantId { get; set; }
+        public virtual TKey TenantId { get; set; }
 
         /// <summary> 
         /// Creates a new instance of <see cref="TenantUserStore"/>. 
         /// </summary> 
         /// <param name="context">The context used to access the store.</param> 
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param> 
-        public TenantUserStore(TContext context, IdentityErrorDescriber describer = null)
+        public TenantUserStore(TenantIdentityDbContext<TKey> context, IdentityErrorDescriber describer = null)
         {
             if (context == null)
             {
@@ -110,7 +57,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </summary> 
         /// <param name="context">The context used to access the store.</param> 
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param> 
-        public TenantUserStore(TContext context, TTenantKey tenantId, IdentityErrorDescriber describer = null)
+        public TenantUserStore(TenantIdentityDbContext<TKey> context, TKey tenantId, IdentityErrorDescriber describer = null)
         {
             if (context == null)
             {
@@ -128,7 +75,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// <summary> 
         /// Gets the database context for this store. 
         /// </summary> 
-        public TContext Context { get; private set; }
+        public TenantIdentityDbContext<TKey> Context { get; private set; }
 
 
         /// <summary> 
@@ -372,13 +319,13 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </summary> 
         /// <param name="id">The id to convert.</param> 
         /// <returns>An instance of <typeparamref name="TUserKey"/> representing the provided <paramref name="id"/>.</returns> 
-        public virtual TUserKey ConvertIdFromString(string id)
+        public virtual string ConvertIdFromString(string id)
         {
             if (id == null)
             {
-                return default(TUserKey);
+                return default(string);
             }
-            return (TUserKey)TypeDescriptor.GetConverter(typeof(TUserKey)).ConvertFromInvariantString(id);
+            return (string) TypeDescriptor.GetConverter(typeof(string)).ConvertFromInvariantString(id);
         }
 
 
@@ -387,9 +334,9 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         /// </summary> 
         /// <param name="id">The id to convert.</param> 
         /// <returns>An <see cref="string"/> representation of the provided <paramref name="id"/>.</returns> 
-        public virtual string ConvertIdToString(TUserKey id)
+        public virtual string ConvertIdToString(TKey id)
         {
-            if (Object.Equals(id, default(TUserKey)))
+            if (Object.Equals(id, default(string)))
             {
                 return null;
             }
@@ -518,7 +465,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new InvalidOperationException(roleName);
             }
-            var ur = new IdentityUserRole<TUserKey> { UserId = user.Id, RoleId = roleEntity.Id };
+            var ur = new IdentityUserRole<TKey> { UserId = user.Id, RoleId = roleEntity.Id };
             UserRoles.Add(ur);
         }
 
@@ -645,9 +592,9 @@ namespace Microsoft.AspNet.Identity.EntityFramework
 
 
         private DbSet<TRole> Roles { get { return Context.Set<TRole>(); } }
-        private DbSet<IdentityUserClaim<TUserKey>> UserClaims { get { return Context.Set<IdentityUserClaim<TUserKey>>(); } }
-        private DbSet<IdentityUserRole<TUserKey>> UserRoles { get { return Context.Set<IdentityUserRole<TUserKey>>(); } }
-        private DbSet<IdentityUserLogin<TUserKey>> UserLogins { get { return Context.Set<IdentityUserLogin<TUserKey>>(); } }
+        private DbSet<IdentityUserClaim<TKey>> UserClaims { get { return Context.Set<IdentityUserClaim<TKey>>(); } }
+        private DbSet<IdentityUserRole<TKey>> UserRoles { get { return Context.Set<IdentityUserRole<TKey>>(); } }
+        private DbSet<IdentityUserLogin<TKey>> UserLogins { get { return Context.Set<IdentityUserLogin<TKey>>(); } }
 
 
         /// <summary> 
@@ -705,7 +652,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             }
             foreach (var claim in claims)
             {
-                UserClaims.Add(new IdentityUserClaim<TUserKey> { UserId = user.Id, ClaimType = claim.Type, ClaimValue = claim.Value });
+                UserClaims.Add(new IdentityUserClaim<TKey> { UserId = user.Id, ClaimType = claim.Type, ClaimValue = claim.Value });
             }
             return Task.FromResult(false);
         }
@@ -819,7 +766,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
             {
                 throw new ArgumentNullException(nameof(login));
             }
-            var l = new IdentityUserLogin<TUserKey>
+            var l = new IdentityUserLogin<TKey>
             {
                 UserId = user.Id,
                 ProviderKey = login.ProviderKey,

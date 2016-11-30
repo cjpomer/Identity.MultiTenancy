@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Microsoft.AspNet.Identity.EntityFramework
+namespace Microsoft.AspNetCore.Identity.MultiTenancy.EntityFramework
 {
-    public class TenantIdentityUser : TenantIdentityUser<Tenant, string, string>
+    public class TenantIdentityUser : TenantIdentityUser<string>
     {
         public TenantIdentityUser() 
         {
@@ -17,35 +14,20 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         }
     }
 
-    public class TenantIdentityUser<TTenant, TTenantKey> : TenantIdentityUser<TTenant, TTenantKey, string>
-        where TTenant : Tenant<TTenantKey>
-        where TTenantKey : IEquatable<TTenantKey>
+    public class TenantIdentityUser<TKey> : IdentityUser<TKey>
+        where TKey : IEquatable<TKey>
     {
+        virtual public TKey TenantId { get; set; }
+
         public TenantIdentityUser()
         {
-            Id = Guid.NewGuid().ToString();
         }
 
-        public TenantIdentityUser(string userName) : base(userName)
+        public TenantIdentityUser(string userName)
         {
-        }
-    }
-
-    public class TenantIdentityUser<TTenant, TTenantKey, TUserKey> : IdentityUser<TUserKey>
-        where TTenant : Tenant<TTenantKey>
-        where TTenantKey : IEquatable<TTenantKey>
-        where TUserKey : IEquatable<TUserKey>
-    {
-        virtual public TTenantKey TenantId { get; set; }
-
-        public TenantIdentityUser() : base()
-        {
+            UserName = userName;
         }
 
-        public TenantIdentityUser(string userName) : base(userName)
-        {
-        }
-
-        virtual public TTenant Tenant { get; set; }
+        virtual public Tenant<TKey> Tenant { get; set; }
     }
 }

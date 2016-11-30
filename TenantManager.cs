@@ -1,57 +1,28 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Data.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Microsoft.AspNet.Identity.MultiTenancy
+namespace Microsoft.AspNetCore.Identity.MultiTenancy
 {
-    public class TenantManager<TTenant, TUser, TRole, TTenantKey, TUserKey>
-        where TTenant : Tenant<TTenantKey>
-        where TUser : TenantIdentityUser<TTenant, TTenantKey, TUserKey>
-        where TTenantKey : IEquatable<TTenantKey>
-        where TUserKey : IEquatable<TUserKey>
-        where TRole : IdentityRole<TUserKey>
+    public class TenantManager<TTenant> where TTenant : class
     {
-        private TenantIdentityDbContext<TTenant, TUser, TRole, TTenantKey, TUserKey> dbContext;
-
-        public TenantManager(TenantIdentityDbContext<TTenant, TUser, TRole, TTenantKey, TUserKey> dbContext)
+        private readonly ITenantStore<TTenant> _store;
+        public TenantManager(ITenantStore<TTenant> store)
         {
-            this.dbContext = dbContext;
+            _store = store;
         }
 
-        public async Task<TTenant> FindByIdAsync(TTenantKey id)
+        public Task<TTenant> FindByIdAsync(string id)
         {
-            return await dbContext.Tenants.FirstOrDefaultAsync(t => t.Id.Equals(id));
+            return _store.FindByIdAsync(id);
         }
 
-        public async Task<IdentityResult> CreateAsync(TTenant tenant)
+        public Task<IdentityResult> CreateAsync(TTenant tenant)
         {
-            dbContext.Tenants.Add(tenant);
-            try
-            {
-                await dbContext.SaveChangesAsync();
-                return IdentityResult.Success;
-            }
-            catch (Exception ex)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
-            }
+            return _store.CreateAsync(tenant);
         }
 
-        public async Task<IdentityResult> DeleteAsync(TTenant tenant)
+        public Task<IdentityResult> DeleteAsync(TTenant tenant)
         {
-            dbContext.Tenants.Remove(tenant);
-            try
-            {
-                await dbContext.SaveChangesAsync();
-                return IdentityResult.Success;
-            }
-            catch (Exception ex)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
-            }
+            return _store.DeleteAsync(tenant);
         }
     }
 }
