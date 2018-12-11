@@ -1,9 +1,0 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/obj/Debug/netstandard1.6
-/bin/Debug/netstandard1.6
-AspNetCore.Identity.MultiTenancy.xproj.user
-project.lock.json
-/.vs/Microsoft.AspNetCore.Identity.MultiTenancy/v14/.suo
