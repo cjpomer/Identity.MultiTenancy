@@ -3,3 +3,16 @@
 ################################################################################
 
 *.lock
+*.ide
+*.ide-shm
+*.ide-wal
+*.suo
+/Identity.Multitenancy/bin/Debug
+/Identity.Multitenancy/obj/Debug
+/Identity.Multitenancy/obj
+/Identity.Multitenancy.EntityFramework/bin/Debug
+/Identity.Multitenancy.EntityFramework/obj/Debug
+*.cache
+*.props
+*.targets
+/Identity.Multitenancy.EntityFramework/obj
